@@ -23,8 +23,8 @@ exports.handler = (event, context, callback) => {
     });
     
     jacksCognito.authenticateUser(authDetails, {
-        onSuccess: result => {
-            const jwtToken = result.getAccessToken().getJwtToken();
+        onSuccess: session => {
+            const jwtToken = session.getAccessToken().getJwtToken();
             const newUsers = {};
             let user = {};
             let message;
@@ -61,25 +61,23 @@ exports.handler = (event, context, callback) => {
                         'Authorization': jwtToken,
                         'Content-Type': 'application/json'
                     }
-                }).then(res => res.json()).then(json => {
-                    const convoId = { convoId: json.data.createConversation.conversationId };
-                    // Send a welcome message to the new Conversation
+                }).then(res => res.json()).then(json =>
                     fetch(process.env.gql_api_url, {
                         method: 'POST',
                         body: JSON.stringify({
                             query: sendWelcomeMessage,
                             operationName: 'createMessage',
-                            variables: convoId
+                            variables: { convoId: json.data.createConversation.conversationId }
                         }),
                         headers: {
                             'Authorization': jwtToken,
                             'Content-Type': 'application/json'
                         }
-                    }).then(res => res.json()).then(j => console.log(JSON.stringify(j))).catch(er => console.log(er, er.stack));
-                }).catch(e => console.log("Error Creating Conversation", e));
+                    })
+                ).catch(e => console.log("Error Creating Conversation", e));
             }
         },
-        onFailure: err => console.log("AUTHFAIL", err)
+        onFailure: err => console.log(`AUTHFAIL ${err}`, err.stack)
     });
     callback(null, event);
 };
