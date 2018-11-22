@@ -1,2 +1,2 @@
-# lambda-mailing-list
-Lambda function to interact with Mailchimp API
+# lambda-create-convo
+Lambda function to create a new Conversation after a Cognito New User trigger.
