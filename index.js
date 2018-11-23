@@ -43,7 +43,7 @@ exports.handler = (event, context, callback) => {
                     createConversation(input: { participants: $participants }) { conversationId }
                 }`;
                 const participants = { participants: [newUser.sub, process.env.lora_sub] };
-                const welcomeText = `Hey there, ${newUser.name}! Welcome to TailRD Nutrition! Your personal Dietitian is named Lora and she's ready to chat. Feel free to get things started.`;
+                const welcomeText = `Hey there, ${newUser.name}! Welcome to TailRD Nutrition! Your personal Dietitian is Lora, feel free to get things started.`;
                 const sendWelcomeMessage = `mutation createMessage($convoId: ID!) {
                     sendMessage(input: {
                         conversationId: $convoId,
