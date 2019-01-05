@@ -33,17 +33,25 @@ exports.handler = (event, context, callback) => {
                 user = JSON.parse(message.body).newUser;
                 newUsers[user.name] = user;
             }
-            
+            const rdSubMap = JSON.parse(process.env.rd_sub_map);
             const newUserKeys = Object.keys(newUsers);
             for (i in newUserKeys) {
                 const newUser = newUsers[newUserKeys[i]];
+                // first, figure out what Dietitian this User will be assigned to
+                // Default RD is Lora, but if they use a particular RD's promo code, we'll assign that user to that RD.
+                let promo = 'lora';
+                if (newUser.promo !== undefined && Object.keys(rdSubMap).includes(newUser.promo.toLowerCase())) {
+                    promo = newUser.promo.toLowerCase();
+                }
+                const rdSub = rdSubMap[promo];
+                const rdName = promo.charAt(0).toUpperCase() + promo.slice(1);
                 // Create a new conversation between the new User and Lora
                 // Create Conversation Mutation
                 const createConvo = `mutation createConvo($participants: [ID!]!) {
                     createConversation(input: { participants: $participants }) { conversationId }
                 }`;
-                const participants = { participants: [newUser.sub, process.env.lora_sub] };
-                const welcomeText = `Hey there, ${newUser.name}! Welcome to TailRD Nutrition! Your personal Dietitian is Lora, feel free to get things started.`;
+                const participants = { participants: [newUser.sub, rdSub] };
+                const welcomeText = `Hey there, ${newUser.name}! Welcome to TailRD Nutrition! Your personal Dietitian is ${rdName} - feel free to get things started.`;
                 const sendWelcomeMessage = `mutation createMessage($convoId: ID!) {
                     sendMessage(input: {
                         conversationId: $convoId,
