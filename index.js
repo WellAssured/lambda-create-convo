@@ -85,7 +85,10 @@ exports.handler = (event, context, callback) => {
                 ).catch(e => console.log("Error Creating Conversation", e));
             }
         },
-        onFailure: err => console.log(`AUTHFAIL ${err}`, err.stack)
+        onFailure: err => {
+            console.log(`AUTHFAIL ${err}`, err.stack);
+            console.log(err);
+        }
     });
     callback(null, event);
 };
